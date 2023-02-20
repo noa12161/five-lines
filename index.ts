@@ -1,6 +1,17 @@
 const TILE_SIZE = 30;
 const FPS = 30;
 const SLEEP = 1000 / FPS;
+const TILE_COLORS = {
+  PLAYER: "#ff0000",
+  FLUX: "#ccffcc",
+  UNBREAKABLE: "#999999",
+  STONE: "#0000cc",
+  BOX: "#8b4513",
+  KEY1: "#ffcc00",
+  LOCK1: "#ffcc00",
+  KEY2: "#00ccff",
+  LOCK2: "#00ccff",
+};
 
 enum RawTile {
   AIR,
@@ -29,6 +40,7 @@ interface Tile {
   isKey2(): boolean;
   isLock1(): boolean;
   isLock2(): boolean;
+  color(g: CanvasRenderingContext2D): void;
 }
 
 class Air implements Tile {
@@ -68,6 +80,7 @@ class Air implements Tile {
   isLock2(): boolean {
     return false;
   }
+  color(g: CanvasRenderingContext2D): void {}
 }
 class Flux implements Tile {
   isAir(): boolean {
@@ -105,6 +118,9 @@ class Flux implements Tile {
   }
   isLock2(): boolean {
     return false;
+  }
+  color(g: CanvasRenderingContext2D): void {
+    g.fillStyle = TILE_COLORS.FLUX;
   }
 }
 class Unbreakable implements Tile {
@@ -144,6 +160,9 @@ class Unbreakable implements Tile {
   isLock2(): boolean {
     return false;
   }
+  color(g: CanvasRenderingContext2D): void {
+    g.fillStyle = TILE_COLORS.UNBREAKABLE;
+  }
 }
 class Player implements Tile {
   isAir(): boolean {
@@ -181,6 +200,9 @@ class Player implements Tile {
   }
   isLock2(): boolean {
     return false;
+  }
+  color(g: CanvasRenderingContext2D): void {
+    g.fillStyle = TILE_COLORS.PLAYER;
   }
 }
 class Stone implements Tile {
@@ -220,6 +242,9 @@ class Stone implements Tile {
   isLock2(): boolean {
     return false;
   }
+  color(g: CanvasRenderingContext2D): void {
+    g.fillStyle = TILE_COLORS.STONE;
+  }
 }
 class FallingStone implements Tile {
   isAir(): boolean {
@@ -257,6 +282,9 @@ class FallingStone implements Tile {
   }
   isLock2(): boolean {
     return false;
+  }
+  color(g: CanvasRenderingContext2D): void {
+    g.fillStyle = TILE_COLORS.STONE;
   }
 }
 class Box implements Tile {
@@ -296,6 +324,9 @@ class Box implements Tile {
   isLock2(): boolean {
     return false;
   }
+  color(g: CanvasRenderingContext2D): void {
+    g.fillStyle = TILE_COLORS.BOX;
+  }
 }
 class FallingBox implements Tile {
   isAir(): boolean {
@@ -333,6 +364,9 @@ class FallingBox implements Tile {
   }
   isLock2(): boolean {
     return false;
+  }
+  color(g: CanvasRenderingContext2D): void {
+    g.fillStyle = TILE_COLORS.BOX;
   }
 }
 class Key1 implements Tile {
@@ -372,6 +406,9 @@ class Key1 implements Tile {
   isLock2(): boolean {
     return false;
   }
+  color(g: CanvasRenderingContext2D): void {
+    g.fillStyle = TILE_COLORS.KEY1;
+  }
 }
 class Key2 implements Tile {
   isAir(): boolean {
@@ -409,6 +446,9 @@ class Key2 implements Tile {
   }
   isLock2(): boolean {
     return false;
+  }
+  color(g: CanvasRenderingContext2D): void {
+    g.fillStyle = TILE_COLORS.KEY2;
   }
 }
 class Lock1 implements Tile {
@@ -448,6 +488,9 @@ class Lock1 implements Tile {
   isLock2(): boolean {
     return false;
   }
+  color(g: CanvasRenderingContext2D): void {
+    g.fillStyle = TILE_COLORS.LOCK1;
+  }
 }
 class Lock2 implements Tile {
   isAir(): boolean {
@@ -485,6 +528,9 @@ class Lock2 implements Tile {
   }
   isLock2(): boolean {
     return true;
+  }
+  color(g: CanvasRenderingContext2D): void {
+    g.fillStyle = TILE_COLORS.LOCK2;
   }
 }
 
@@ -766,22 +812,11 @@ function drawPlayer(g: CanvasRenderingContext2D) {
 function drawMap(g: CanvasRenderingContext2D) {
   for (let y = 0; y < map.length; y++) {
     for (let x = 0; x < map[y].length; x++) {
-      colorOfTile(y, x, g);
+      map[y][x].color(g);
       if (!map[y][x].isAir() && !map[y][x].isPlayer())
         g.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
     }
   }
-}
-
-function colorOfTile(y: number, x: number, g: CanvasRenderingContext2D) {
-  if (map[y][x].isFlux()) g.fillStyle = "#ccffcc";
-  else if (map[y][x].isUnbreakable()) g.fillStyle = "#999999";
-  else if (map[y][x].isStone() || map[y][x].isFallingStone())
-    g.fillStyle = "#0000cc";
-  else if (map[y][x].isBox() || map[y][x].isFallingBox())
-    g.fillStyle = "#8b4513";
-  else if (map[y][x].isKey1() || map[y][x].isLock1()) g.fillStyle = "#ffcc00";
-  else if (map[y][x].isKey2() || map[y][x].isLock2()) g.fillStyle = "#00ccff";
 }
 
 function createGrapics() {
