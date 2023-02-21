@@ -218,3 +218,102 @@
   }
   */
   ```
+
+## 리팩터링 패턴: 전략 패턴의 도입
+
+- 다른 클래스를 인스턴스화해서 변형을 도입하는 개념을 `전략 패턴` 이라고 합니다.
+
+  1. 분리하려른 코드에 대해 `메서드 추출`을 수행합니다. 다른 것과 통합하려면 메서드가 동일한지 확인합니다.
+  2. 새로운 클래스를 만듭니다.
+  3. 생성자에서 새로운 클래스를 인스터스화합니다.
+  4. 메서드를 새로운 클래스로 옮깁니다.
+  5. 필드에 종속성이 있을 경우 다음을 수행합니다.
+
+  - 필드를 새로운 클래스로 옮기고 옮긴 필드에 대한 접근자를 만듭니다.
+  - 새로운 접근자를 사용해서 원래 클래스에 발생하는 오류를 바로잡습니다.
+
+  6. 새로운 클래스의 나머지 오류에 대해 해당 값을 대체할 매개변수를 추가합니다.
+  7. `메서드의 인라인화`를 사용해서 1단계의 추출을 반대로 합니다.
+
+- 예제 (리팩터링 전)
+
+```typescript
+class ArrayMinimum {
+  constructor(private acc: number) {}
+  proccess(arr: number[]) {
+    for (let i = 0; i < arr.length; i++) {
+      if (this.acc > arr[i]) this.acc = arr[i];
+    }
+    return this.acc;
+  }
+}
+class ArraySum {
+  constructor(private acc: number) {}
+  proccess(arr: number[]) {
+    for (let i = 0; i < arr.length; i++) {
+      this.acc += arr[i];
+    }
+    return this.acc;
+  }
+}
+```
+
+- 예제 (리팩터링 후)
+
+```typescript
+class MinimumProcessor {
+  contructor(private acc: number) {}
+  getAcc() {
+    return this.acc;
+  }
+  proccessElement(e: number) {
+    if (this.acc > e) this.acc = e;
+  }
+}
+class SumProcessor {
+  contructor(private acc: number) {}
+  getAcc() {
+    return this.acc;
+  }
+  proccessElement(e: number) {
+    this.acc += e;
+  }
+}
+class ArrayMinimum {
+  private processor: MinimumProcessor;
+  constructor(acc: number) {
+    this.processor = new MinimumProcessor(acc);
+  }
+  proccess(arr: number[]) {
+    for (let i = 0; i < arr.length; i++) {
+      this.processor.processElement(arr[i]);
+    }
+    return this.processor.getAcc();
+  }
+}
+class ArraySum {
+  private processor: SumProcessor;
+  constructor(acc: number) {
+    this.processor = new SumProcessor(acc);
+  }
+  proccess(arr: number[]) {
+    for (let i = 0; i < arr.length; i++) {
+      this.processor.processElement(arr[i]);
+    }
+    return this.processor.getAcc();
+  }
+}
+```
+
+## 규칙: 구현체가 하나뿐인 인터페이스를 만들지 말 것
+
+# 6장. 데이터 보호
+
+## 규칙: getter와 setter를 사용하지 말 것
+
+- 부울(boolean) 이 아닌 필드에 setter나 getter를 사용하지 마십시오.
+- 여기서 setter 또는 getter를 언급할 떄는 각각 부울이 아닌 필드를 직접 할당하거나 반환하는 메서드를 의미합니다.
+- 객체의 필드에 대한 getter가 존재하는 순간 캡슐화를 해제하고 불변속성을 전역적으로 만들게 됩니다.
+- 이론적으로 setter는 내부데이터 구조를 변경하고 해당 setter를 수정해도 시그니처를 유지할수 있는 또다른 간접겆ㄱ인 레이어를 도입할수 있습니다.
+  이 규칙의 정의에 따르면 이러한 메서드는 더 이상 setter가 아니므로 문제가 되지 않습니다. 그러나 실제로 일어나는 일은,
+  setter를 통한 새로운 데이터 구조를 반환하도록 getter를 수정하는 것입니다.
