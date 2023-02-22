@@ -317,3 +317,53 @@ class ArraySum {
 - 이론적으로 setter는 내부데이터 구조를 변경하고 해당 setter를 수정해도 시그니처를 유지할수 있는 또다른 간접겆ㄱ인 레이어를 도입할수 있습니다.
   이 규칙의 정의에 따르면 이러한 메서드는 더 이상 setter가 아니므로 문제가 되지 않습니다. 그러나 실제로 일어나는 일은,
   setter를 통한 새로운 데이터 구조를 반환하도록 getter를 수정하는 것입니다.
+
+## 리팩터링 패턴: 데이터 캡슐화
+
+- 변수와 메서드를 캡슐화 해서 접근할 수 있는 지점을 제한하고 구조를 명확하게 만들 수 있습니다. 메서드를 캡술화 하면 이름을 단순하게 만들고 응집력을 더 명확하게 하는데 도움이 됩니다.
+
+1. 클래스를 만듭니다.
+2. 변술르 새로운 클래스로 이동하고 let을 private으로 바꿉니다. 변수의 이름을 단순한 것으로 정하고 변수에 대한 getter와 setter를 만듭니다.
+3. 변수가 더이상 전역 범위에 없기 떄문에 컴파일러가 오류를 발생시켜 모든 참조를 찾을 수 있게 해줍니다. 다음의 다섯 절차를 통해 이 오류들을 수정합니다.
+4. 새 클래스의 인스턴스에 적합한 변수 이름을 선택합니다.
+5. 접근을 가상의 변수에 대한 getter 또는 setter로 바꿉니다.
+6. 2개 이상의 다른 메서드에서 오류가 발생한 경우 이전의 변수명을 가진 매개변수를 첫 번째 매개변수로 추가하고 동일한 변수를 첫 번쨰 인자로 호출하는 쪽에 넣습니다.
+7. 한 메서드에서만 오류가 발생할 때까지 반복합니다.
+8. 변수를 캡슐화 했다면 변수가 선언된 지점에서 새로운 클래스를 인스턴스화합니다. 그렇지 않으면 오류가 발생한 메서드에 인스턴스화하는 부분을 만듭니다.
+   -(초기 코드)
+
+
+    ```typescript
+    let counter = 0;
+    function incrementCounter() {
+      counter ++;
+    }
+    function main() {
+      for( let i= 0; i < 20; i++) {
+        incrementCounter();
+      }
+    }
+    ```
+    - (리팩터링 적용)
+    ```typescript
+    class Counter {
+      private count = 0;
+      getCount() {
+        return this.count
+      }
+      setCount(n : number) {
+        this.count = n
+      }
+    }
+    const counter = new Counter()
+    function incrementCounter(counter: Counter) {
+      counter.setCount(
+        counter.getCount() + 1
+      )
+    }
+    function main() {
+      for( let i= 0; i < 20; i++) {
+        incrementCounter(counter);
+      }
+    }
+    ```

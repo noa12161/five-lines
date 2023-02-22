@@ -158,17 +158,11 @@ const RED_KEY = new KeyConfiguration(
 class Player {
   private x = 1;
   private y = 1;
-  private setX(x: number) {
-    this.x = x;
-  }
-  private setY(y: number) {
-    this.y = y;
-  }
   private moveToTile(newx: number, newy: number) {
     map[this.y][this.x] = new Air();
     map[newy][newx] = new PlayerTile();
-    this.setY(newy);
-    this.setX(newx);
+    this.y = newy;
+    this.x = newx;
   }
 
   drawPlayer(g: CanvasRenderingContext2D) {
@@ -176,7 +170,6 @@ class Player {
     g.fillRect(this.x * TILE_SIZE, this.y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
   }
   moveHorizontal(dx: number) {
-    console.log("dd", dx);
     map[this.y][this.x + dx].moveHorizontal(this, dx);
   }
   moveVertical(dy: number) {
@@ -422,44 +415,22 @@ class Lock_ implements Tile {
 class Right implements Input {
   handle(player: Player) {
     player.moveHorizontal(ConstNumbers.DX);
-    // map[player.getY()][player.getX() + ConstNumbers.DX].moveHorizontal(
-    //   player,
-    //   ConstNumbers.DX
-    // );
   }
 }
 class Left implements Input {
   handle(player: Player) {
     player.moveHorizontal(-ConstNumbers.DX);
   }
-  // handle(player: Player) {
-  //   map[player.getY()][player.getX() + -ConstNumbers.DX].moveHorizontal(
-  //     player,
-  //     -ConstNumbers.DX
-  //   );
-  // }
 }
 class Up implements Input {
   handle(player: Player) {
-    player.moveVertical(ConstNumbers.DY);
+    player.moveVertical(-ConstNumbers.DY);
   }
-  // handle(player: Player) {
-  //   map[player.getY() - ConstNumbers.DY][player.getX()].moveVertical(
-  //     player,
-  //     -ConstNumbers.DX
-  //   );
-  // }
 }
 class Down implements Input {
   handle(player: Player) {
-    player.moveVertical(-ConstNumbers.DY);
+    player.moveVertical(+ConstNumbers.DY);
   }
-  // handle(player: Player) {
-  //   map[player.getY() + ConstNumbers.DY][player.getX()].moveVertical(
-  //     player,
-  //     ConstNumbers.DX
-  //   );
-  // }
 }
 
 const player = new Player();
@@ -484,13 +455,6 @@ function remove(shouldRemove: RemoveStrategy) {
   }
 }
 
-// function moveToTile_(newx: number, newy: number) {
-//   map[player.getY()][player.getX()] = new Air();
-//   map[newy][newx] = new PlayerTile();
-//   player.setY(newy);
-//   player.setX(newx);
-// }
-
 function update() {
   handleInputs();
   updateMap();
@@ -508,16 +472,6 @@ function updateMap() {
     }
   }
 }
-
-// function drawPlayer_(g: CanvasRenderingContext2D) {
-//   g.fillStyle = TILE_COLORS.PLAYER;
-//   g.fillRect(
-//     player.getX() * TILE_SIZE,
-//     player.getY() * TILE_SIZE,
-//     TILE_SIZE,
-//     TILE_SIZE
-//   );
-// }
 
 function drawMap(g: CanvasRenderingContext2D) {
   for (let y = 0; y < map.length; y++) {
@@ -538,7 +492,6 @@ function createGrapics() {
 function draw() {
   let g = createGrapics();
   player.drawPlayer(g);
-  // drawPlayer(g);
   drawMap(g);
 }
 
