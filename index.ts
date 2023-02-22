@@ -38,12 +38,6 @@ enum RawTile {
   KEY2,
   LOCK2,
 }
-enum RawInput {
-  UP,
-  DOWN,
-  LEFT,
-  RIGHT,
-}
 
 interface Tile {
   canFall(): boolean;
@@ -479,6 +473,20 @@ class Down implements Input {
   }
 }
 
+class Inputs {
+  private inputs: Input[] = [];
+
+  push(input: Input) {
+    this.inputs.push(input);
+  }
+  handle() {
+    while (this.inputs.length > 0) {
+      const input = this.inputs.pop();
+      input.handle(map, player);
+    }
+  }
+}
+
 const YELLOW_KEY = new KeyConfiguration(
   TILE_COLORS.KEY1,
   true,
@@ -491,26 +499,11 @@ const RED_KEY = new KeyConfiguration(
 );
 const map = new Map();
 const player = new Player();
-let inputs: Input[] = [];
+const inputs = new Inputs();
 
 function update() {
-  handleInputs();
+  inputs.handle();
   map.update();
-}
-
-function handleInputs() {
-  while (inputs.length > 0) {
-    let input = inputs.pop();
-    input.handle(map, player);
-  }
-}
-
-function createGrapics() {
-  let canvas = document.getElementById("GameCanvas") as HTMLCanvasElement;
-  let g = canvas.getContext("2d");
-  g.clearRect(0, 0, canvas.width, canvas.height);
-
-  return g;
 }
 
 function draw() {
@@ -530,7 +523,6 @@ function gameLoop() {
 }
 
 window.onload = () => {
-  // map.transform();
   gameLoop();
 };
 window.addEventListener("keydown", (e) => {
@@ -540,6 +532,13 @@ window.addEventListener("keydown", (e) => {
   else if (e.key === DOWN_KEY || e.key === "s") inputs.push(new Down());
 });
 
+function createGrapics() {
+  let canvas = document.getElementById("GameCanvas") as HTMLCanvasElement;
+  let g = canvas.getContext("2d");
+  g.clearRect(0, 0, canvas.width, canvas.height);
+
+  return g;
+}
 function assertExhausted(x: never) {
   throw new Error("Unexpected object: " + x);
 }
